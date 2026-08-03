@@ -1,6 +1,6 @@
 ---
 name: reduce-token-usage
-description: Analyze Claude Code token usage, find where the tokens actually go, and guide the user through the matching fix — session habits, statusline visibility, enforcement hooks, code-graph retrieval, context management, and an OTLP/Grafana monitoring stack for measuring before vs after. Use when the user asks why usage is high, wants to reduce token spend, set up token reduction or usage monitoring, or invokes /reduce-token-usage.
+description: Analyze Claude Code token usage, find where the tokens actually go, and guide the user through the matching fix — session habits, statusline visibility, enforcement hooks, code-graph retrieval, context management, and lexometer (a single-binary OTLP dashboard) for measuring before vs after. Use when the user asks why usage is high, wants to reduce token spend, set up token reduction or usage monitoring, or invokes /reduce-token-usage.
 ---
 
 # Reduce token usage: measure, diagnose, fix, verify
@@ -128,11 +128,11 @@ Grafana, no Docker.
 ## Step 4 — Verify and close the loop
 
 Verify each install (symlinks resolve, hooks fire on a cheap matching call, metrics
-arrive in Prometheus if the monitoring stack was installed), then show a one-screen
-summary: what was installed, where, and the one-line undo for each. Tell the user:
-work normally for ~a week, re-run /reduce-token-usage, and compare against the
-baseline by **cost per completed task** (counting rerun tax), not raw tokens — via
-the Grafana dashboard split on `skills_enabled` if monitoring is installed, else
+arrive on the lexometer dashboard if monitoring was installed), then show a
+one-screen summary: what was installed, where, and the one-line undo for each. Tell
+the user: work normally for ~a week, re-run /reduce-token-usage, and compare against
+the baseline by **cost per completed task** (counting rerun tax), not raw tokens —
+via lexometer's `skills_enabled` before/after panel if monitoring is installed, else
 ccusage. Anything that didn't pay for itself gets removed — say so plainly.
 
 ## Don'ts
