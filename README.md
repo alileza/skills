@@ -6,7 +6,15 @@ and most of that context is file reads, not prose. These skills attack the input
 side; output-side tricks (terse-prompting) target ~1% of spend and can be net
 negative.
 
-## Start here: `/token-audit`
+## Start here: `/token-setup`, then `/token-audit`
+
+[token-setup](token-setup/SKILL.md) is the guided installer. Invoke it and Claude
+saves a usage baseline, then walks you through a menu — companion skills, context
+visibility in your statusline, and optional enforcement hooks (output trimming, a
+session budget circuit-breaker) — installing only what you pick, verifying each
+piece, and telling you how to undo it.
+
+## Measure: `/token-audit`
 
 [token-audit](token-audit/SKILL.md) is the entry point. Invoke it and Claude
 analyzes your actual usage — ccusage history plus your session transcripts — tells
@@ -29,11 +37,11 @@ your own before/after, not published headline numbers.
 
 ```bash
 git clone https://github.com/alileza/skills ~/.claude/skills-repo
-ln -s ~/.claude/skills-repo/{delegate-exploration,scoped-read,quiet-verify,task-boundary} ~/.claude/skills/
+ln -s ~/.claude/skills-repo/{token-setup,token-audit,delegate-exploration,scoped-read,quiet-verify,task-boundary} ~/.claude/skills/
 ```
 
-Or copy the four directories into `~/.claude/skills/` (user-wide) or
-`.claude/skills/` in a project.
+Then run `/token-setup` in Claude Code for the guided version — or copy the skill
+directories into `~/.claude/skills/` (user-wide) or `.claude/skills/` in a project.
 
 ## Measure before you believe
 
