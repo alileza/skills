@@ -19,12 +19,13 @@ tooling. It saves a baseline first and re-measures after a week, so every
 intervention is judged by your own before/after — cost per completed task — not
 published headline numbers.
 
-For a real before/after it can also install a personal monitoring stack
-([claude-otlp-example](https://github.com/alileza/claude-otlp-example): OTel
-Collector + Prometheus + a Grafana dashboard on `localhost:3009`) wired to Claude
-Code's built-in telemetry, with a `skills_enabled` resource attribute as the
-experiment flag — flip it when you enable the skills, and every cost and token
-metric becomes queryable by before/after phase.
+For a real before/after it can also install
+[claudewatch](https://github.com/alileza/claudewatch) — a single binary that
+receives Claude Code's built-in OTLP telemetry and serves its own dashboard on
+`localhost:4318`, with a `skills_enabled` resource attribute as the experiment
+flag: flip it when you enable the skills, and the dashboard compares average cost
+per day before vs after. (Prefer the full collector/Prometheus/Grafana stack?
+[claude-otlp-example](https://github.com/alileza/claude-otlp-example).)
 
 **[clear-context-between-tasks](clear-context-between-tasks/SKILL.md)** — the one
 always-on habit skill, because session length is usually the dominant cost. At a

@@ -92,39 +92,38 @@ durable repo-side fix; every future session benefits with zero tooling.
 **Turn churn →** fix the cause: run /fewer-permission-prompts for denials;
 tighter task specs for rework. Do not recommend terse-output prompting.
 
-**Continuous monitoring (recommended alongside any fix) → OTLP metrics stack.**
+**Continuous monitoring (recommended alongside any fix) → claudewatch.**
 Snapshots from ccusage make a weak before/after; live telemetry makes a real one.
-Offer to install github.com/alileza/claude-otlp-example — a docker-compose stack
-(OTel Collector :4317, Prometheus :9099, Grafana dashboard :3009, no login) that
-receives Claude Code's built-in telemetry: token usage by type, cost by model,
-session counts, active time.
+Offer to install github.com/alileza/claudewatch — a single Go binary that receives
+Claude Code's built-in OTLP telemetry directly and serves its own dashboard (cost
+per day, tokens by type, sessions, before/after comparison). No Prometheus, no
+Grafana, no Docker.
 
-1. Requires Docker running — check `docker info` first; if absent, skip with a note.
-2. `git clone https://github.com/alileza/claude-otlp-example ~/.claude/otlp-monitor
-   && cd ~/.claude/otlp-monitor && docker compose up -d`, then confirm the collector
-   is listening and Grafana serves on http://localhost:3009.
-3. Enable Claude Code telemetry in the user's shell profile (show the diff first):
+1. `go install github.com/alileza/claudewatch@latest` (needs a Go toolchain;
+   if absent, offer the heavier docker-compose alternative
+   github.com/alileza/claude-otlp-example instead), then run `claudewatch` —
+   dashboard on http://localhost:4318. Set it up to start on login if the user
+   wants it always-on (e.g. a LaunchAgent on macOS; ask first).
+2. Enable Claude Code telemetry in the user's shell profile (show the diff first):
 
    ```bash
    export CLAUDE_CODE_ENABLE_TELEMETRY=1
    export OTEL_METRICS_EXPORTER=otlp
-   export OTEL_LOGS_EXPORTER=otlp
-   export OTEL_EXPORTER_OTLP_PROTOCOL=grpc
-   export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
-   export OTEL_SERVICE_NAME="claude-code"
-   export OTEL_RESOURCE_ATTRIBUTES="service.name=claude-code,skills_enabled=false"
+   export OTEL_EXPORTER_OTLP_PROTOCOL=http/json
+   export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+   export OTEL_RESOURCE_ATTRIBUTES="skills_enabled=false"
    ```
 
-4. **The before/after mechanism:** `skills_enabled` in OTEL_RESOURCE_ATTRIBUTES is
-   the experiment flag. It stays `false` during the baseline period; the moment the
-   user enables the skills (or any other intervention), flip it to `true` (new
-   shells pick it up). Every metric is then queryable by phase in Grafana/Prometheus
-   — e.g. cost per day split by `skills_enabled` — instead of eyeballing dates.
-   Record the flip date in the user's notes as well; label + date together survive
+3. **The before/after mechanism:** `skills_enabled` is the experiment flag. It
+   stays `false` during the baseline period; the moment the user enables the
+   skills (or any other intervention), flip it to `true` (new shells pick it up).
+   Once both phases have data, claudewatch's dashboard shows average cost per
+   active day per phase and the percent change — the user's own measured number.
+   Record the flip date in notes as well; label + date together survive
    shell-profile mistakes.
-5. Telemetry only covers sessions started after enablement — the historical baseline
-   still comes from ccusage; the monitoring stack owns the "after".
-6. Undo: `docker compose down -v` in the clone, remove the export lines.
+4. Telemetry only covers sessions started after enablement — the historical
+   baseline still comes from ccusage; claudewatch owns the "after".
+5. Undo: stop the process, remove the export lines, delete `~/.claudewatch/`.
 
 ## Step 4 — Verify and close the loop
 
