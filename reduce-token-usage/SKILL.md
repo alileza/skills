@@ -84,7 +84,14 @@ output caps at 10,000 chars; hooks fire inside subagents — check the payload a
 pass subagent output through untouched.
 
 **Heavy artifacts →** do image/design iteration in short dedicated sessions; never
-re-read an image already in the conversation.
+re-read an image already in the conversation. For images/large tool results already
+stuck in a long session, prune them from the on-disk transcript so a *resumed*
+session stops replaying them: [`prune-session.py`](prune-session.py) stubs image
+blocks (and, with `--tool-results N`, oversized tool_result content) while keeping
+JSONL and tool_use/tool_result pairing valid. Dry-run first
+(`python3 prune-session.py <session.jsonl>`); it only helps on `--continue`/`--resume`,
+never refunds spent tokens, and must never run against a session currently open in
+Claude Code.
 
 **Monolith hot files →** recommend splitting them into feature modules — the one
 durable repo-side fix; every future session benefits with zero tooling.
