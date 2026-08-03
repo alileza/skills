@@ -1,6 +1,6 @@
 ---
 name: reduce-token-usage
-description: Analyze Claude Code token usage, find where the tokens actually go, and guide the user through the matching fix — session habits, statusline visibility, enforcement hooks, code-graph retrieval, context management. Use when the user asks why usage is high, wants to reduce token spend or set up token reduction, or invokes /reduce-token-usage.
+description: Analyze Claude Code token usage, find where the tokens actually go, and guide the user through the matching fix — session habits, statusline visibility, enforcement hooks, code-graph retrieval, context management, and an OTLP/Grafana monitoring stack for measuring before vs after. Use when the user asks why usage is high, wants to reduce token spend, set up token reduction or usage monitoring, or invokes /reduce-token-usage.
 ---
 
 # Reduce token usage: measure, diagnose, fix, verify
@@ -92,13 +92,49 @@ durable repo-side fix; every future session benefits with zero tooling.
 **Turn churn →** fix the cause: run /fewer-permission-prompts for denials;
 tighter task specs for rework. Do not recommend terse-output prompting.
 
+**Continuous monitoring (recommended alongside any fix) → OTLP metrics stack.**
+Snapshots from ccusage make a weak before/after; live telemetry makes a real one.
+Offer to install github.com/alileza/claude-otlp-example — a docker-compose stack
+(OTel Collector :4317, Prometheus :9099, Grafana dashboard :3009, no login) that
+receives Claude Code's built-in telemetry: token usage by type, cost by model,
+session counts, active time.
+
+1. Requires Docker running — check `docker info` first; if absent, skip with a note.
+2. `git clone https://github.com/alileza/claude-otlp-example ~/.claude/otlp-monitor
+   && cd ~/.claude/otlp-monitor && docker compose up -d`, then confirm the collector
+   is listening and Grafana serves on http://localhost:3009.
+3. Enable Claude Code telemetry in the user's shell profile (show the diff first):
+
+   ```bash
+   export CLAUDE_CODE_ENABLE_TELEMETRY=1
+   export OTEL_METRICS_EXPORTER=otlp
+   export OTEL_LOGS_EXPORTER=otlp
+   export OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+   export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+   export OTEL_SERVICE_NAME="claude-code"
+   export OTEL_RESOURCE_ATTRIBUTES="service.name=claude-code,skills_enabled=false"
+   ```
+
+4. **The before/after mechanism:** `skills_enabled` in OTEL_RESOURCE_ATTRIBUTES is
+   the experiment flag. It stays `false` during the baseline period; the moment the
+   user enables the skills (or any other intervention), flip it to `true` (new
+   shells pick it up). Every metric is then queryable by phase in Grafana/Prometheus
+   — e.g. cost per day split by `skills_enabled` — instead of eyeballing dates.
+   Record the flip date in the user's notes as well; label + date together survive
+   shell-profile mistakes.
+5. Telemetry only covers sessions started after enablement — the historical baseline
+   still comes from ccusage; the monitoring stack owns the "after".
+6. Undo: `docker compose down -v` in the clone, remove the export lines.
+
 ## Step 4 — Verify and close the loop
 
-Verify each install (symlinks resolve, hooks fire on a cheap matching call), then
-show a one-screen summary: what was installed, where, and the one-line undo for
-each. Tell the user: work normally for ~a week, re-run /reduce-token-usage, and
-compare against the baseline by **cost per completed task** (counting rerun tax),
-not raw tokens. Anything that didn't pay for itself gets removed — say so plainly.
+Verify each install (symlinks resolve, hooks fire on a cheap matching call, metrics
+arrive in Prometheus if the monitoring stack was installed), then show a one-screen
+summary: what was installed, where, and the one-line undo for each. Tell the user:
+work normally for ~a week, re-run /reduce-token-usage, and compare against the
+baseline by **cost per completed task** (counting rerun tax), not raw tokens — via
+the Grafana dashboard split on `skills_enabled` if monitoring is installed, else
+ccusage. Anything that didn't pay for itself gets removed — say so plainly.
 
 ## Don'ts
 

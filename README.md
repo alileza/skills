@@ -19,6 +19,13 @@ tooling. It saves a baseline first and re-measures after a week, so every
 intervention is judged by your own before/after — cost per completed task — not
 published headline numbers.
 
+For a real before/after it can also install a personal monitoring stack
+([claude-otlp-example](https://github.com/alileza/claude-otlp-example): OTel
+Collector + Prometheus + a Grafana dashboard on `localhost:3009`) wired to Claude
+Code's built-in telemetry, with a `skills_enabled` resource attribute as the
+experiment flag — flip it when you enable the skills, and every cost and token
+metric becomes queryable by before/after phase.
+
 **[clear-context-between-tasks](clear-context-between-tasks/SKILL.md)** — the one
 always-on habit skill, because session length is usually the dominant cost. At a
 verified task boundary it saves the carry-forward state, then suggests /clear. It
