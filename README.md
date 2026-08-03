@@ -6,7 +6,17 @@ and most of that context is file reads, not prose. These skills attack the input
 side; output-side tricks (terse-prompting) target ~1% of spend and can be net
 negative.
 
-## The skills
+## Start here: `/token-audit`
+
+[token-audit](token-audit/SKILL.md) is the entry point. Invoke it and Claude
+analyzes your actual usage — ccusage history plus your session transcripts — tells
+you which bucket your tokens go to (exploration bloat, success noise, missing task
+boundaries, turn churn), and guides you through installing the matching fix:
+code-graph retrieval MCP, output-trimming hooks, a context statusline, or the
+companion skills below. It re-audits after a week so every intervention is judged by
+your own before/after, not published headline numbers.
+
+## Companion skills (the remedies)
 
 | Skill | What it does | Lever |
 |---|---|---|
