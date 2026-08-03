@@ -20,7 +20,7 @@ intervention is judged by your own before/after — cost per completed task — 
 published headline numbers.
 
 For a real before/after it can also install
-[claudewatch](https://github.com/alileza/claudewatch) — a single binary that
+[lexometer](https://github.com/alileza/lexometer) — a single binary that
 receives Claude Code's built-in OTLP telemetry and serves its own dashboard on
 `localhost:4318`, with a `skills_enabled` resource attribute as the experiment
 flag: flip it when you enable the skills, and the dashboard compares average cost

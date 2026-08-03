@@ -92,16 +92,16 @@ durable repo-side fix; every future session benefits with zero tooling.
 **Turn churn →** fix the cause: run /fewer-permission-prompts for denials;
 tighter task specs for rework. Do not recommend terse-output prompting.
 
-**Continuous monitoring (recommended alongside any fix) → claudewatch.**
+**Continuous monitoring (recommended alongside any fix) → lexometer.**
 Snapshots from ccusage make a weak before/after; live telemetry makes a real one.
-Offer to install github.com/alileza/claudewatch — a single Go binary that receives
+Offer to install github.com/alileza/lexometer — a single Go binary that receives
 Claude Code's built-in OTLP telemetry directly and serves its own dashboard (cost
 per day, tokens by type, sessions, before/after comparison). No Prometheus, no
 Grafana, no Docker.
 
-1. `go install github.com/alileza/claudewatch@latest` (needs a Go toolchain;
+1. `go install github.com/alileza/lexometer@latest` (needs a Go toolchain;
    if absent, offer the heavier docker-compose alternative
-   github.com/alileza/claude-otlp-example instead), then run `claudewatch` —
+   github.com/alileza/claude-otlp-example instead), then run `lexometer` —
    dashboard on http://localhost:4318. Set it up to start on login if the user
    wants it always-on (e.g. a LaunchAgent on macOS; ask first).
 2. Enable Claude Code telemetry in the user's shell profile (show the diff first):
@@ -117,13 +117,13 @@ Grafana, no Docker.
 3. **The before/after mechanism:** `skills_enabled` is the experiment flag. It
    stays `false` during the baseline period; the moment the user enables the
    skills (or any other intervention), flip it to `true` (new shells pick it up).
-   Once both phases have data, claudewatch's dashboard shows average cost per
+   Once both phases have data, lexometer's dashboard shows average cost per
    active day per phase and the percent change — the user's own measured number.
    Record the flip date in notes as well; label + date together survive
    shell-profile mistakes.
 4. Telemetry only covers sessions started after enablement — the historical
-   baseline still comes from ccusage; claudewatch owns the "after".
-5. Undo: stop the process, remove the export lines, delete `~/.claudewatch/`.
+   baseline still comes from ccusage; lexometer owns the "after".
+5. Undo: stop the process, remove the export lines, delete `~/.lexometer/`.
 
 ## Step 4 — Verify and close the loop
 
