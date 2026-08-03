@@ -88,7 +88,17 @@
   nav.links a:hover { background: var(--surface-secondary); text-decoration: none; }
   nav.links a.primary { background: var(--content-primary); color: #fff; }
   nav.links a.primary:hover { background: #1f2630; }
-  @media (max-width: 720px) { nav.links a:not(.primary) { display: none; } }
+  nav.links a.tab-link.active {
+    background: var(--accent-blue); color: #fff;
+  }
+  nav.links a.tab-link.active:hover { background: var(--accent-blue); }
+  @media (max-width: 720px) {
+    nav.links { overflow-x: auto; gap: 4px; -webkit-overflow-scrolling: touch; }
+    nav.links a.primary { display: none; }
+  }
+
+  section.tab-panel { display: none; }
+  section.tab-panel.active { display: block; }
 
   main { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
   section.hero { padding: 72px 0 40px; }
@@ -231,10 +241,10 @@
     <span class="name">skills / token audit</span>
   </div>
   <nav class="links">
-    <a href="#spend">The spend</a>
-    <a href="#session">The mega-session</a>
-    <a href="#claims">Claims vs reality</a>
-    <a href="#verdict">Verdict</a>
+    <a href="#spend" class="tab-link active" data-target="spend">The spend</a>
+    <a href="#session" class="tab-link" data-target="session">The mega-session</a>
+    <a href="#claims" class="tab-link" data-target="claims">Claims vs reality</a>
+    <a href="#verdict" class="tab-link" data-target="verdict">Verdict</a>
     <a href="https://github.com/alileza/skills" class="primary">GitHub →</a>
   </nav>
 </header>
@@ -259,7 +269,7 @@
   </div>
 </section>
 
-<section id="spend">
+<section id="spend" class="tab-panel active">
   <div class="section-head">
     <div class="kicker">01 · Where the money goes</div>
     <h2>Cost ≈ context size × turns</h2>
@@ -290,7 +300,7 @@
   </div>
 </section>
 
-<section id="session">
+<section id="session" class="tab-panel">
   <div class="section-head">
     <div class="kicker">02 · The dominant pathology</div>
     <h2>One session ran for 24 days</h2>
@@ -317,7 +327,7 @@
   </div>
 </section>
 
-<section id="claims">
+<section id="claims" class="tab-panel">
   <div class="section-head">
     <div class="kicker">03 · Claims vs reality</div>
     <h2>The gap between headlines and measurements</h2>
@@ -338,7 +348,7 @@
   </div>
 </section>
 
-<section id="verdict">
+<section id="verdict" class="tab-panel">
   <div class="section-head">
     <div class="kicker">04 · The verdict</div>
     <h2>What a skill can and cannot do</h2>
@@ -393,6 +403,29 @@
 </footer>
 
 <script>
+/* ---------- tab navigation ---------- */
+(function () {
+  var links = document.querySelectorAll('.tab-link');
+  var panels = document.querySelectorAll('.tab-panel');
+  function show(target) {
+    panels.forEach(function (p) { p.classList.toggle('active', p.id === target); });
+    links.forEach(function (l) { l.classList.toggle('active', l.dataset.target === target); });
+  }
+  links.forEach(function (l) {
+    l.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      show(l.dataset.target);
+      history.replaceState(null, '', '#' + l.dataset.target);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+  // deep-link support: open the tab named in the URL hash
+  var hash = location.hash.slice(1);
+  if (hash && document.getElementById(hash) && document.getElementById(hash).classList.contains('tab-panel')) {
+    show(hash);
+  }
+})();
+
 (function () {
   var BLUE = '#0057ff', RED = '#ff4034', GRID = '#eceef1', AXIS = '#d3d7dd',
       INK = '#0a0d12', MUTE = '#6b7280', FAINT = '#9ca4ad';
