@@ -31,9 +31,17 @@ Present the menu (AskUserQuestion, multiSelect) with one-line expected impact ea
    if an audit showed large passing-test output.
 4. **Session budget circuit-breaker hook** — hard per-session ceiling; for users who
    want a guarantee, not a nudge.
+5. **Code-graph retrieval (graphify or similar)** — pre-indexes the codebase so
+   Claude queries structure instead of reading files to orient; the biggest shipped
+   lever for large repos (500+ files), pointless for small ones.
+6. **Context management tooling** — for users whose audit shows long sessions or
+   context that never resets: compaction settings, cross-session memory/handoff,
+   and third-party context tools.
 
 If the user has already run `/token-audit`, match recommendations to its findings
-instead of the generic defaults.
+instead of the generic defaults — e.g. recommend code-graph retrieval only if the
+audit showed exploration bloat (many whole-file reads of files never edited), and
+skip the trimmer if success-noise was small.
 
 ## Step 2 — Install what was picked
 
@@ -71,6 +79,35 @@ median session from the baseline) — this is a parachute, not a leash.
 Consult current Claude Code hooks documentation for exact payload fields before
 writing either hook; verify with a dry run (`echo '<sample json>' | script`) before
 registering it.
+
+**Code-graph retrieval.** Candidates: graphify (open-source; builds a queryable
+knowledge graph of the codebase, served over MCP, with incremental updates on code
+change) and similar code-graph MCP servers. Before installing:
+- Verify the project is big enough to benefit — roughly 500+ files; on a small repo
+  the graph adds setup cost and saves nothing.
+- Search for the tool's **current** install method and maintenance status — don't
+  install from memory; these projects move fast. Register via `claude mcp add`.
+- Build the initial graph and confirm incremental updates work on the user's repo
+  before calling it installed (a stale graph silently gives wrong answers).
+- Set expectations honestly: published claims for these tools run 49–70×; real-world
+  replays measure single-digit percent. Tell the user the truth is repo-dependent
+  and only their own before/after (Step 4) will say.
+
+**Context management tooling.** Target: sessions that grow without resetting (the
+audit symptom: one session spanning many tasks or days). In order of payoff:
+- **Boundary discipline** — the `task-boundary` skill plus statusline context
+  visibility; installed above. The habit of /clear between tasks beats any tool.
+- **Cross-session memory/handoff** — so /clear is cheap: durable state goes to the
+  built-in memory directory or a NOTES.md the user keeps; a session that saved its
+  state can always be cleared. Show the user how task-boundary writes these.
+- **Compaction behavior** — review /compact vs /clear with the user: compact keeps
+  loosely-related context at summarization cost; clear is strictly cheaper at a
+  true boundary.
+- **Third-party context tools** (transcript compressors, context routers such as
+  rtk or headroom-style proxies) — same rule as code-graph: search for current
+  status, verify maintained, install only against a measured symptom, and note
+  that combined replays of these tools have measured only single-digit percent
+  savings. These are the last resort, not the first.
 
 ## Step 3 — Verify
 

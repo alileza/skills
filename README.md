@@ -10,9 +10,10 @@ negative.
 
 [token-setup](token-setup/SKILL.md) is the guided installer. Invoke it and Claude
 saves a usage baseline, then walks you through a menu — companion skills, context
-visibility in your statusline, and optional enforcement hooks (output trimming, a
-session budget circuit-breaker) — installing only what you pick, verifying each
-piece, and telling you how to undo it.
+visibility in your statusline, optional enforcement hooks (output trimming, a
+session budget circuit-breaker), code-graph retrieval (e.g. graphify) for large
+repos, and context-management tooling — installing only what you pick, matched to
+your audit findings, verifying each piece, and telling you how to undo it.
 
 ## Measure: `/token-audit`
 
