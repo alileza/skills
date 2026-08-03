@@ -1,9 +1,9 @@
 ---
-name: task-boundary
+name: clear-context-between-tasks
 description: Use when a task is verifiably complete AND the user starts something unrelated in the same session — a clear boundary between finished work and new work. Summarize what must carry forward, then suggest the user run /clear or /compact. Never fires mid-task or on a follow-up to the current task.
 ---
 
-# Task boundaries: declare what to keep, then clear
+# Clear context between tasks: declare what to keep, then clear
 
 ## Why
 

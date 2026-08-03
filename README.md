@@ -6,55 +6,40 @@ and most of that context is file reads, not prose. These skills attack the input
 side; output-side tricks (terse-prompting) target ~1% of spend and can be net
 negative.
 
-## Start here: `/token-setup`, then `/token-audit`
+## The two skills
 
-[token-setup](token-setup/SKILL.md) is the guided installer. Invoke it and Claude
-saves a usage baseline, then walks you through a menu — companion skills, context
-visibility in your statusline, optional enforcement hooks (output trimming, a
-session budget circuit-breaker), code-graph retrieval (e.g. graphify) for large
-repos, and context-management tooling — installing only what you pick, matched to
-your audit findings, verifying each piece, and telling you how to undo it.
+**[reduce-token-usage](reduce-token-usage/SKILL.md)** — run `/reduce-token-usage`
+and Claude measures your actual usage (ccusage history plus your session
+transcripts), diagnoses where the tokens go — missing task boundaries, exploration
+bloat, success noise, heavy artifacts, monolith files, turn churn — and guides you
+through only the fixes your data supports: session habits, statusline context
+visibility, enforcement hooks (output trimming, a session budget circuit-breaker),
+code-graph retrieval (e.g. graphify) for large repos, and context-management
+tooling. It saves a baseline first and re-measures after a week, so every
+intervention is judged by your own before/after — cost per completed task — not
+published headline numbers.
 
-## Measure: `/token-audit`
-
-[token-audit](token-audit/SKILL.md) is the entry point. Invoke it and Claude
-analyzes your actual usage — ccusage history plus your session transcripts — tells
-you which bucket your tokens go to (exploration bloat, success noise, missing task
-boundaries, turn churn), and guides you through installing the matching fix:
-code-graph retrieval MCP, output-trimming hooks, a context statusline, or the
-companion skills below. It re-audits after a week so every intervention is judged by
-your own before/after, not published headline numbers.
-
-## Companion skills (the remedies)
-
-| Skill | What it does | Lever |
-|---|---|---|
-| [delegate-exploration](delegate-exploration/SKILL.md) | Run open-ended searches in a subagent; only conclusions enter the main context | Keeps dead-end reads out of the re-billed context. Highest expected payoff. |
-| [scoped-read](scoped-read/SKILL.md) | Locate with Grep/LSP first, then Read a bounded window with offset/limit | Shrinks the dominant cost: file contents held in context |
-| [quiet-verify](quiet-verify/SKILL.md) | Filter build/test output at the shell — failures verbatim, successes counted | Stops success noise from accumulating across turns |
-| [task-boundary](task-boundary/SKILL.md) | At a verified task boundary, save carry-forward state and suggest /clear | Resets context growth between unrelated tasks |
+**[clear-context-between-tasks](clear-context-between-tasks/SKILL.md)** — the one
+always-on habit skill, because session length is usually the dominant cost. At a
+verified task boundary it saves the carry-forward state, then suggests /clear. It
+never clears anything itself and never fires mid-task.
 
 ## Install
 
 ```bash
 git clone https://github.com/alileza/skills ~/.claude/skills-repo
-ln -s ~/.claude/skills-repo/{token-setup,token-audit,delegate-exploration,scoped-read,quiet-verify,task-boundary} ~/.claude/skills/
+ln -s ~/.claude/skills-repo/{reduce-token-usage,clear-context-between-tasks} ~/.claude/skills/
 ```
 
-Then run `/token-setup` in Claude Code for the guided version — or copy the skill
-directories into `~/.claude/skills/` (user-wide) or `.claude/skills/` in a project.
+Then run `/reduce-token-usage` in Claude Code.
 
 ## Measure before you believe
 
 Skills are discipline, not enforcement — the model can ignore them, and published
-savings numbers rarely reproduce. Before installing, record a baseline of your normal
-usage (e.g. with [ccusage](https://github.com/ryoppippi/ccusage)), run a comparable
-period with the skills installed, and compare **cost per completed task**, counting
-any rerun tax. If an intervention doesn't pay for itself on your own work, drop it.
-
-Known risk: `task-boundary` is the most valuable and the most likely to misfire,
-since it must infer where a boundary is. If it suggests clearing mid-task, tighten
-its description to require an explicit user signal.
+savings numbers (49×, 70×) rarely reproduce; real-world replays measure single-digit
+percent. Record a baseline, run a comparable period, and compare **cost per
+completed task**, counting any rerun tax. If an intervention doesn't pay for itself
+on your own work, remove it.
 
 ## License
 
